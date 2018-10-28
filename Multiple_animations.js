@@ -10,6 +10,7 @@ stork = null,
 group = null,
 orbitControls = null;
 
+var raycaster = null;
 
 var created = 0,
 dead = 0,
@@ -20,7 +21,7 @@ var robots = [];
 var directionalLight = null;
 var spotLight = null;
 var ambientLight = null;
-var mapUrl = "../images/pasto.jpg";
+var mapUrl = "../images/checker_large.gif";
 
 var SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 2048;
 
@@ -32,6 +33,8 @@ var duration = 20000; // ms
 var currentTime = Date.now();
 
 var animation = "run";
+
+var mouse = new THREE.Vector2(), CLICKED, INTERSECTED;
 
 function changeAnimation(animation_text)
 {
@@ -160,15 +163,16 @@ function setLightColor(light, r, g, b)
 
 function create_robot(event)
 {
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < 5; i++) 
+  {
 
-    console.log("Cloning robot");
+    // console.log("Cloning robot");
 
     var newRobot = cloneFbx(robot_idle);
     newRobot.mixer =  new THREE.AnimationMixer( scene );
     var action = newRobot.mixer.clipAction( newRobot.animations[ 0 ], newRobot );
     action.play();
-    console.log(robots);
+    // console.log(robots);
 
     //robot_mixer["run"] = new THREE.AnimationMixer( scene );
     newRobot.scale.set(0.01, 0.01, 0.01);
@@ -197,8 +201,13 @@ function onDocumentMouseDown(event)
 {
     event.preventDefault();
     event.preventDefault();
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    var size = renderer.getSize();
+    mouse.x = ( event.clientX / size.width ) * 2 - 1;
+    mouse.y = - ( event.clientY / size.height ) * 2 + 1;
+
+    console.log(mouse);
+    // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
     // find intersections
     raycaster.setFromCamera( mouse, camera );
@@ -302,6 +311,9 @@ function createScene(canvas) {
     mesh.castShadow = false;
     mesh.receiveShadow = true;
 
+    raycaster = new THREE.Raycaster();
+
+    document.addEventListener('mousedown', onDocumentMouseDown);
 
     // Now add the group to our scene
     scene.add( root );
